@@ -17,6 +17,7 @@
     "jsx": "react-jsx",
     "strict": true,
     "types": [
+      "vite/client",
       "vitest/globals"
     ]
   },
@@ -25,4 +26,3 @@
     "vite.config.ts"
   ]
 }
-

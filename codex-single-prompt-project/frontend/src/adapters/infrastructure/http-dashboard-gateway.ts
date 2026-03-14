@@ -1,6 +1,15 @@
 import type { DashboardGateway } from "../../core/ports/dashboard-gateway";
+import type {
+  AdjustedComplianceSnapshot,
+  BankEntry,
+  BankingResult,
+  ComparisonRecord,
+  ComplianceSnapshot,
+  PoolResult,
+  RouteRecord
+} from "../../core/domain/models";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
+const API_URL = import.meta.env.VITE_API_URL ?? (import.meta.env.PROD ? "" : "http://localhost:4000");
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {
@@ -37,19 +46,19 @@ export class HttpDashboardGateway implements DashboardGateway {
     }
 
     const query = params.toString();
-    return request(`/routes${query ? `?${query}` : ""}`);
+    return request<RouteRecord[]>(`/routes${query ? `?${query}` : ""}`);
   }
 
   setBaseline(routeId: string) {
-    return request(`/routes/${routeId}/baseline`, { method: "POST" });
+    return request<RouteRecord>(`/routes/${routeId}/baseline`, { method: "POST" });
   }
 
   getComparisons() {
-    return request("/routes/comparison");
+    return request<ComparisonRecord[]>("/routes/comparison");
   }
 
   getComplianceBalance(shipId: string, year: number) {
-    return request(`/compliance/cb?shipId=${shipId}&year=${year}`);
+    return request<ComplianceSnapshot>(`/compliance/cb?shipId=${shipId}&year=${year}`);
   }
 
   getAdjustedCompliance(year: number, shipId?: string) {
@@ -59,7 +68,9 @@ export class HttpDashboardGateway implements DashboardGateway {
       params.set("shipId", shipId);
     }
 
-    return request(`/compliance/adjusted-cb?${params.toString()}`);
+    return request<AdjustedComplianceSnapshot | AdjustedComplianceSnapshot[]>(
+      `/compliance/adjusted-cb?${params.toString()}`
+    );
   }
 
   getBankRecords(shipId?: string, year?: number) {
@@ -74,11 +85,11 @@ export class HttpDashboardGateway implements DashboardGateway {
     }
 
     const query = params.toString();
-    return request(`/banking/records${query ? `?${query}` : ""}`);
+    return request<BankEntry[]>(`/banking/records${query ? `?${query}` : ""}`);
   }
 
   bankSurplus(input: { shipId: string; year: number; amountGco2eq: number }) {
-    return request("/banking/bank", {
+    return request<BankingResult>("/banking/bank", {
       method: "POST",
       body: JSON.stringify(input)
     });
@@ -91,7 +102,7 @@ export class HttpDashboardGateway implements DashboardGateway {
     targetYear: number;
     amountGco2eq: number;
   }) {
-    return request("/banking/apply", {
+    return request<BankingResult>("/banking/apply", {
       method: "POST",
       body: JSON.stringify(input)
     });
@@ -101,10 +112,9 @@ export class HttpDashboardGateway implements DashboardGateway {
     year: number;
     members: Array<{ shipId: string; year: number; adjustedCb: number }>;
   }) {
-    return request("/pools", {
+    return request<PoolResult>("/pools", {
       method: "POST",
       body: JSON.stringify(input)
     });
   }
 }
-

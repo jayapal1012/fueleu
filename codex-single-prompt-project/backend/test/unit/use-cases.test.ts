@@ -9,6 +9,8 @@ import type { ComplianceRepository } from "../../src/core/ports/compliance-repos
 import type { BankRepository } from "../../src/core/ports/bank-repository.js";
 import type { PoolRepository } from "../../src/core/ports/pool-repository.js";
 import type { ComplianceSnapshot } from "../../src/core/domain/compliance.js";
+import type { BankEntry } from "../../src/core/domain/banking.js";
+import type { PoolMemberAllocation } from "../../src/core/domain/pooling.js";
 
 const routeRepository: RouteRepository = {
   list: vi.fn(async () => [
@@ -80,7 +82,7 @@ const complianceRepository: ComplianceRepository = {
 const bankRepository: BankRepository = {
   listByShipYear: vi.fn(),
   getAvailable: vi.fn(async () => 1_000_000),
-  createBankEntry: vi.fn(async () => ({
+  createBankEntry: vi.fn(async (): Promise<BankEntry> => ({
     id: 1,
     shipId: "R002",
     year: 2024,
@@ -94,11 +96,11 @@ const bankRepository: BankRepository = {
 };
 
 const poolRepository: PoolRepository = {
-  createPool: vi.fn(async (year, members) => ({
+  createPool: vi.fn(async (year: number, members: PoolMemberAllocation[]) => ({
     poolId: 1,
     year,
-    sumBefore: members.reduce((sum, member) => sum + member.cbBefore, 0),
-    sumAfter: members.reduce((sum, member) => sum + member.cbAfter, 0),
+    sumBefore: members.reduce((sum: number, member: PoolMemberAllocation) => sum + member.cbBefore, 0),
+    sumAfter: members.reduce((sum: number, member: PoolMemberAllocation) => sum + member.cbAfter, 0),
     members
   }))
 };

@@ -1,5 +1,8 @@
 import cors from "cors";
+import { existsSync } from "node:fs";
 import express from "express";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { z } from "zod";
 import { ListRoutesUseCase } from "../../../core/application/use-cases/list-routes.js";
 import { SetBaselineUseCase } from "../../../core/application/use-cases/set-baseline.js";
@@ -49,6 +52,11 @@ export const createApp = () => {
   const app = express();
   app.use(cors());
   app.use(express.json());
+
+  const currentDir = path.dirname(fileURLToPath(import.meta.url));
+  const frontendDistDir = path.resolve(currentDir, "../../../../../frontend/dist");
+  const hasFrontendBuild =
+    process.env.NODE_ENV === "production" && existsSync(path.join(frontendDistDir, "index.html"));
 
   app.get("/health", (_request, response) => {
     response.json({ ok: true });
@@ -153,6 +161,14 @@ export const createApp = () => {
       response.status(400).json({ message });
     }
   );
+
+  if (hasFrontendBuild) {
+    app.use(express.static(frontendDistDir));
+
+    app.get(/^(?!\/(health|routes|compliance|banking|pools)\b).*/, (_request, response) => {
+      response.sendFile(path.join(frontendDistDir, "index.html"));
+    });
+  }
 
   return app;
 };

@@ -83,6 +83,8 @@ DB_PORT=5432
 DB_NAME=fueleu_varuna
 DB_USER=postgres
 DB_PASSWORD=jayapal1012
+DB_SSL=false
+DB_SSL_REJECT_UNAUTHORIZED=true
 ```
 
 ## Database Bootstrap
@@ -107,6 +109,31 @@ Expected local URLs:
 
 - Frontend: `http://localhost:5173`
 - Backend: `http://localhost:4000`
+
+## Production Build
+
+Build both packages from the repo root:
+
+```bash
+npm run build
+```
+
+Start the production app:
+
+```bash
+npm start
+```
+
+In production, the backend serves the built frontend from the same origin, so `VITE_API_URL` is only needed for local development.
+
+## Azure App Service Notes
+
+- Deploy the repo root as a single Node.js app.
+- Use `npm run build` as the build command.
+- Use `npm start` as the startup command.
+- Point the app settings at Azure Database for PostgreSQL.
+- For Azure PostgreSQL, set `DB_SSL=true`.
+- If you prefer a single connection string, set `DATABASE_URL` instead of the individual `DB_*` settings.
 
 ## Test
 
@@ -188,4 +215,3 @@ curl -X POST http://localhost:4000/pools ^
 - One seeded baseline is set to `R001`.
 - Banking uses `bank_entries` with `BANK` and `APPLY` entry types.
 - Pooling uses greedy surplus allocation and enforces the assignment validation rules.
-
