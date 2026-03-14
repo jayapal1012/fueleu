@@ -50,3 +50,10 @@ screenshots:
 ![alt text](image-3.png)
 
 ![alt text](image-4.png)
+
+
+Have copied the folder to other github repo and deployed it in azure successfully.
+
+link-https://fueleu-jay-ffe8dbfbc5hnaqgf.southeastasia-01.azurewebsites.net
+
+github repo link- https://github.com/jayapal1012/webhostfueleu
