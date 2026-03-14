@@ -1,0 +1,3 @@
+export const TARGET_INTENSITY = 89.3368;
+export const ENERGY_IN_SCOPE_PER_TONNE = 41_000;
+
